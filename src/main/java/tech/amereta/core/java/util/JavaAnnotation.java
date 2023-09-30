@@ -2,6 +2,7 @@ package tech.amereta.core.java.util;
 
 import tech.amereta.core.java.JavaSourceCodeWriter;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -46,11 +47,13 @@ public final class JavaAnnotation {
         if (JavaSourceCodeWriter.requiresImport(this.name)) imports.add(this.name);
         this.attributes.forEach((attribute) -> {
             if (attribute.getDataType() == Class.class) {
-                imports.addAll(attribute.getValues());
+                imports.addAll(attribute.getValues().stream().map(String::valueOf).toList());
             }
             if (Enum.class.isAssignableFrom(attribute.getDataType())) {
-                imports.addAll(attribute.getValues().stream().map((value) -> value.substring(0, value.lastIndexOf(".")))
-                        .toList());
+                imports.addAll(attribute.getValues().stream().map(String::valueOf).map((value) -> value.substring(0, value.lastIndexOf("."))).toList());
+            }
+            if (attribute.getDataType() == Annotation.class) {
+                imports.addAll(attribute.getValues().stream().map(value -> ((JavaAnnotation) value).imports()).flatMap(Set::stream).toList());
             }
         });
         return new LinkedHashSet<>(imports);
@@ -87,7 +90,7 @@ public final class JavaAnnotation {
      */
     public static class Attribute {
 
-        private List<String> values = new LinkedList<>();
+        private List<Object> values = new LinkedList<>();
         private String name;
         private Class<?> dataType;
 
@@ -97,31 +100,34 @@ public final class JavaAnnotation {
 
         public String render() {
             if (this.dataType.equals(Class.class)) {
-                return formatValues(values, (value) -> String.format("%s.class", JavaSourceCodeWriter.getUnqualifiedName(value)));
+                return formatValues(values, (value) -> String.format("%s.class", JavaSourceCodeWriter.getUnqualifiedName(String.valueOf(value))));
             }
             if (Enum.class.isAssignableFrom(this.dataType)) {
                 return formatValues(values, (value) -> {
-                    String enumValue = value.substring(value.lastIndexOf(".") + 1);
-                    String enumClass = value.substring(0, value.lastIndexOf("."));
+                    String enumValue = String.valueOf(value).substring(String.valueOf(value).lastIndexOf(".") + 1);
+                    String enumClass = String.valueOf(value).substring(0, String.valueOf(value).lastIndexOf("."));
                     return String.format("%s.%s", JavaSourceCodeWriter.getUnqualifiedName(enumClass), enumValue);
                 });
             }
             if (this.dataType.equals(String.class)) {
                 return formatValues(values, (value) -> String.format("\"%s\"", value));
             }
+            if (this.dataType.equals(Annotation.class)) {
+                return formatValues(values, (value) -> ((JavaAnnotation) value).render().replaceAll("\n", ""));
+            }
             return formatValues(values, (value) -> String.format("%s", value));
         }
 
-        public List<String> getValues() {
+        public List<Object> getValues() {
             return values;
         }
 
-        public Attribute values(List<String> values) {
+        public Attribute values(List<Object> values) {
             setValues(values);
             return this;
         }
 
-        public void setValues(List<String> values) {
+        public void setValues(List<Object> values) {
             this.values = values;
         }
 
@@ -151,7 +157,7 @@ public final class JavaAnnotation {
             this.dataType = dataType;
         }
 
-        private String formatValues(List<String> values, Function<String, String> formatter) {
+        private String formatValues(final List<Object> values, final Function<Object, String> formatter) {
             final String result = values.stream().map(formatter).collect(Collectors.joining(", "));
             return (values.size() > 1) ? "{ " + result + " }" : result;
         }
