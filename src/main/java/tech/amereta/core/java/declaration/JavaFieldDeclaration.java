@@ -46,7 +46,7 @@ public final class JavaFieldDeclaration extends AbstractJavaFieldDeclaration {
         return "<" + this.genericTypes.stream()
                 .map(JavaSourceCodeWriter::getUnqualifiedName)
                 .collect(Collectors.joining(", ")) +
-                "> ";
+                ">";
     }
 
     @Override
