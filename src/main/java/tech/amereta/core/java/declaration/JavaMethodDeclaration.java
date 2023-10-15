@@ -37,9 +37,9 @@ public final class JavaMethodDeclaration implements Declaration {
         writer.print(this.parameters.stream()
                 .map((parameter) -> {
                     if (parameter.getGenericTypes().isEmpty())
-                        return ((parameter.modifiers != null) ? parameter.modifiers.render() + " " : "") + renderSimpleParameter(parameter);
+                        return ((parameter.modifiers != null) ? parameter.modifiers.render() : "") + renderSimpleParameter(parameter);
                     else
-                        return ((parameter.modifiers != null) ? parameter.modifiers.render() + " " : "") + renderGenericParameter(parameter);
+                        return ((parameter.modifiers != null) ? parameter.modifiers.render() : "") + renderGenericParameter(parameter);
                 })
                 .collect(Collectors.joining(", ")));
         if (!this.exceptions.isEmpty()) {
@@ -62,7 +62,7 @@ public final class JavaMethodDeclaration implements Declaration {
         final List<String> imports = new ArrayList<>();
         if (JavaSourceCodeWriter.requiresImport(this.returnType)) imports.add(this.returnType);
         imports.addAll(this.annotations.stream().map(JavaAnnotation::imports).flatMap(Collection::stream).toList());
-        // TODO: add imports for parameters generic types
+        imports.addAll(this.parameters.stream().map(Parameter::getGenericTypes).flatMap(List::stream).filter(JavaSourceCodeWriter::requiresImport).toList());
         imports.addAll(this.parameters.stream().map(Parameter::getType).filter(JavaSourceCodeWriter::requiresImport).toList());
         imports.addAll(this.statements.stream().map(Statement::imports).flatMap(Collection::stream).toList());
         imports.addAll(exceptions.stream().filter(JavaSourceCodeWriter::requiresImport).toList());
