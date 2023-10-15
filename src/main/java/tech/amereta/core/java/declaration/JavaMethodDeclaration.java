@@ -22,7 +22,9 @@ public final class JavaMethodDeclaration implements Declaration {
     private List<String> exceptions = new LinkedList<>();
     private String name;
     private String returnType;
+    private List<String> genericTypes = new LinkedList<>();
     private JavaModifier modifiers;
+    private Boolean isAbstract = false;
 
     public static JavaMethodDeclaration builder() {
         return new JavaMethodDeclaration();
@@ -45,14 +47,24 @@ public final class JavaMethodDeclaration implements Declaration {
         if (!this.exceptions.isEmpty()) {
             writer.print(") throws ");
             writer.print(renderExceptions());
-            writer.println(" {");
+            if (isAbstract) {
+                writer.println(";");
+            } else {
+                writer.println(" {");
+            }
         } else {
-            writer.println(") {");
+            if (isAbstract) {
+                writer.println(");");
+            } else {
+                writer.println(") {");
+            }
         }
-        writer.indented(() -> {
-            getStatements().forEach(statement -> writer.println(statement.render()));
-        });
-        writer.println("}");
+        if (!isAbstract) {
+            writer.indented(() -> {
+                getStatements().forEach(statement -> writer.println(statement.render()));
+            });
+            writer.println("}");
+        }
         writer.println();
         return writer.render();
     }
@@ -147,6 +159,19 @@ public final class JavaMethodDeclaration implements Declaration {
         this.returnType = returnType;
     }
 
+    public List<String> getGenericTypes() {
+        return genericTypes;
+    }
+
+    public JavaMethodDeclaration genericTypes(List<String> genericTypes) {
+        setGenericTypes(genericTypes);
+        return this;
+    }
+
+    public void setGenericTypes(List<String> genericTypes) {
+        this.genericTypes = genericTypes;
+    }
+
     public JavaModifier getModifiers() {
         return modifiers;
     }
@@ -158,6 +183,19 @@ public final class JavaMethodDeclaration implements Declaration {
 
     public void setModifiers(JavaModifier modifiers) {
         this.modifiers = modifiers;
+    }
+
+    public Boolean getAbstract() {
+        return isAbstract;
+    }
+
+    public JavaMethodDeclaration isAbstract(boolean isAbstract) {
+        setAbstract(isAbstract);
+        return this;
+    }
+
+    public void setAbstract(Boolean anAbstract) {
+        isAbstract = anAbstract;
     }
 
     private String renderExceptions() {
@@ -180,7 +218,15 @@ public final class JavaMethodDeclaration implements Declaration {
     }
 
     private String renderReturnType() {
-        return JavaSourceCodeWriter.getUnqualifiedName(this.returnType) + ifReturnValueWasEmptyDontAddWhiteSpace() + this.name + "(";
+        if(this.genericTypes.isEmpty()) {
+            return JavaSourceCodeWriter.getUnqualifiedName(this.returnType) + ifReturnValueWasEmptyDontAddWhiteSpace() + this.name + "(";
+        }
+        return JavaSourceCodeWriter.getUnqualifiedName(this.returnType)
+                + "<" +
+                this.genericTypes.stream()
+                        .map(JavaSourceCodeWriter::getUnqualifiedName)
+                        .collect(Collectors.joining(", "))
+                + "> " + this.name + "(";
     }
 
     /**
