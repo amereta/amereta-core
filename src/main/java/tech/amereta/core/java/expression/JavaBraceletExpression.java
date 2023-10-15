@@ -11,7 +11,7 @@ public class JavaBraceletExpression extends Operable implements Expression {
     private List<Expression> expressions = new LinkedList<>();
     private boolean bracelet = true;
 
-    public JavaBraceletExpression builder() {
+    public static JavaBraceletExpression builder() {
         return new JavaBraceletExpression();
     }
 
