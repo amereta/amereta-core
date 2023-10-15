@@ -1,0 +1,1 @@
+- JavaMethodInvocationExpression must can invoke a method in same class without having to target this. 
