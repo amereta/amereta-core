@@ -46,6 +46,7 @@ public final class JavaDeclarationStatement implements Statement {
     public Set<String> imports() {
         final List<String> imports = new ArrayList<>();
         if (JavaSourceCodeWriter.requiresImport(this.dataType)) imports.add(this.dataType);
+        imports.addAll(genericTypes.stream().filter(JavaSourceCodeWriter::requiresImport).toList());
         if (this.initialized) imports.addAll(this.expression.imports());
         return new LinkedHashSet<>(imports);
     }
