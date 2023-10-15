@@ -22,20 +22,13 @@ public class JavaMethodInvocationExpression extends Operable implements Expressi
 
     @Override
     public String render() {
-        if (this.invokes.isEmpty()) {
-            if ("!".equals(super.render()))
-                return super.render() + this.target + "()";
-            else
-                return this.target + "()" + super.render();
-        } else {
-            if ("!".equals(super.render()))
-                return super.render() + JavaSourceCodeWriter.getUnqualifiedName(this.target)
-                        + invokes.stream().map(JavaMethodInvoke::render).collect(Collectors.joining());
-            else
-                return JavaSourceCodeWriter.getUnqualifiedName(this.target)
-                        + invokes.stream().map(JavaMethodInvoke::render).collect(Collectors.joining()) + super.render();
+        if ("!".equals(super.render()))
+            return super.render() + renderTarget()
+                    + invokes.stream().map(invoke -> invoke.render(target)).collect(Collectors.joining());
+        else
+            return renderTarget()
+                    + invokes.stream().map(invoke -> invoke.render(target)).collect(Collectors.joining()) + super.render();
 
-        }
     }
 
     @Override
@@ -70,5 +63,9 @@ public class JavaMethodInvocationExpression extends Operable implements Expressi
 
     public void setTarget(String target) {
         this.target = target;
+    }
+
+    private String renderTarget() {
+        return "this".equals(this.target) ? "" : JavaSourceCodeWriter.getUnqualifiedName(this.target);
     }
 }

@@ -1,1 +1,2 @@
-- JavaMethodInvocationExpression must can invoke a method in same class without having to target this. 
+- JavaMethodInvocationExpression must can invoke a method in same class without having to target this.
+- JavaLambdaExpression has some cases that there is no need to render {}

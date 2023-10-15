@@ -16,6 +16,15 @@ public final class JavaMethodInvoke {
         return new JavaMethodInvoke();
     }
 
+    public String render(String target) {
+        return printTabIfBreakLine()
+                + renderDotBeforeInvoke(target)
+                + getUnqualifiedName(method)
+                + "("
+                + arguments.stream().map(Expression::render).collect(Collectors.joining(", "))
+                + ")";
+    }
+
     public String render() {
         return printTabIfBreakLine()
                 + "."
@@ -67,6 +76,10 @@ public final class JavaMethodInvoke {
 
     public void setMethod(String method) {
         this.method = method;
+    }
+
+    private String renderDotBeforeInvoke(String target) {
+        return "this".equals(target) ? "" : ".";
     }
 
     private String getUnqualifiedName(String name) {
