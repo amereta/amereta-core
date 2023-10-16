@@ -183,7 +183,7 @@ public final class JavaTypeDeclaration implements TypeDeclaration {
         String className = "";
         if (getExtendedClassName() != null)
             className += " extends " + JavaSourceCodeWriter.getUnqualifiedName(this.extendedClassName);
-        else if (getImplementedClassName() != null)
+        if (getImplementedClassName() != null)
             className += " implements " + JavaSourceCodeWriter.getUnqualifiedName(this.implementedClassName);
         if (!this.tailGenericTypes.isEmpty()) {
             className += renderGenericType();
