@@ -56,6 +56,7 @@ public final class JavaFieldDeclaration extends AbstractJavaFieldDeclaration {
         if (this.value instanceof Class && JavaSourceCodeWriter.requiresImport(((Class<?>) this.value).getName()))
             imports.add(((Class<?>) this.value).getName());
         imports.addAll(this.annotations.stream().map(JavaAnnotation::imports).flatMap(Collection::stream).toList());
+        imports.addAll(this.genericTypes.stream().filter(JavaSourceCodeWriter::requiresImport).toList());
         return new LinkedHashSet<>(imports);
     }
 
