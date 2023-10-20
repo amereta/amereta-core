@@ -20,6 +20,10 @@ public final class JavaAnnotation {
     }
 
     public String render() {
+        return render(true);
+    }
+
+    public String render(boolean newLine) {
         final StringBuilder annotation = new StringBuilder();
         annotation.append("@").append(JavaSourceCodeWriter.getUnqualifiedName(this.name));
         final List<JavaAnnotation.Attribute> attributes = this.getAttributes();
@@ -38,7 +42,9 @@ public final class JavaAnnotation {
             }
             annotation.append(")");
         }
-        annotation.append(System.lineSeparator());
+        if (newLine) {
+            annotation.append(System.lineSeparator());
+        }
         return annotation.toString();
     }
 

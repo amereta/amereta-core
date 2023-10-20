@@ -5,16 +5,13 @@ import tech.amereta.core.Statement;
 import tech.amereta.core.java.JavaSourceCodeWriter;
 import tech.amereta.core.java.util.JavaModifier;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 public final class JavaDeclarationStatement implements Statement {
 
-    private List<String> genericTypes;
+    private List<String> genericTypes = new LinkedList<>();
     private JavaModifier modifiers;
     private String name;
     private String dataType;
@@ -30,7 +27,7 @@ public final class JavaDeclarationStatement implements Statement {
         final StringBuilder str = new StringBuilder();
         if (modifiers != null) str.append(this.modifiers.render());
         str.append(JavaSourceCodeWriter.getUnqualifiedName(this.dataType));
-        if (this.genericTypes != null) {
+        if (!this.genericTypes.isEmpty()) {
             str.append("<").append(this.genericTypes.stream()
                             .map(JavaSourceCodeWriter::getUnqualifiedName)
                             .collect(Collectors.joining(", ")))

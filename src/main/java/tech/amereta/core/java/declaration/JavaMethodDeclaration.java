@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public final class JavaMethodDeclaration implements Declaration {
 
-    private List<JavaAnnotation> annotations = new ArrayList<>();
+    private List<JavaAnnotation> annotations = new LinkedList<>();
     private List<Parameter> parameters = new LinkedList<>();
     private List<Statement> statements = new LinkedList<>();
     private List<String> exceptions = new LinkedList<>();
@@ -39,9 +39,9 @@ public final class JavaMethodDeclaration implements Declaration {
         writer.print(this.parameters.stream()
                 .map((parameter) -> {
                     if (parameter.getGenericTypes().isEmpty())
-                        return ((parameter.modifiers != null) ? parameter.modifiers.render() : "") + renderSimpleParameter(parameter);
+                        return renderParameterAnnotation(parameter) + renderParameterModifiers(parameter) + renderSimpleParameter(parameter);
                     else
-                        return ((parameter.modifiers != null) ? parameter.modifiers.render() : "") + renderGenericParameter(parameter);
+                        return renderParameterAnnotation(parameter) + renderParameterModifiers(parameter) + renderGenericParameter(parameter);
                 })
                 .collect(Collectors.joining(", ")));
         if (!this.exceptions.isEmpty()) {
@@ -69,6 +69,14 @@ public final class JavaMethodDeclaration implements Declaration {
         return writer.render();
     }
 
+    private static String renderParameterModifiers(Parameter parameter) {
+        return (parameter.modifiers != null) ? parameter.modifiers.render() : "";
+    }
+
+    private static String renderParameterAnnotation(Parameter parameter) {
+        return parameter.getAnnotations().stream().map(annotation -> annotation.render(false)).collect(Collectors.joining(" ")) + (parameter.getAnnotations().isEmpty() ? "" : " ");
+    }
+
     @Override
     public Set<String> imports() {
         final List<String> imports = new ArrayList<>();
@@ -76,6 +84,7 @@ public final class JavaMethodDeclaration implements Declaration {
         imports.addAll(this.annotations.stream().map(JavaAnnotation::imports).flatMap(Collection::stream).toList());
         imports.addAll(this.parameters.stream().map(Parameter::getGenericTypes).flatMap(List::stream).filter(JavaSourceCodeWriter::requiresImport).toList());
         imports.addAll(this.parameters.stream().map(Parameter::getType).filter(JavaSourceCodeWriter::requiresImport).toList());
+        imports.addAll(this.parameters.stream().map(Parameter::getAnnotations).flatMap(List::stream).map(JavaAnnotation::imports).flatMap(Collection::stream).toList());
         imports.addAll(this.statements.stream().map(Statement::imports).flatMap(Collection::stream).toList());
         imports.addAll(exceptions.stream().filter(JavaSourceCodeWriter::requiresImport).toList());
         return new LinkedHashSet<>(imports);
@@ -218,7 +227,7 @@ public final class JavaMethodDeclaration implements Declaration {
     }
 
     private String renderReturnType() {
-        if(this.genericTypes.isEmpty()) {
+        if (this.genericTypes.isEmpty()) {
             return JavaSourceCodeWriter.getUnqualifiedName(this.returnType) + ifReturnValueWasEmptyDontAddWhiteSpace() + this.name + "(";
         }
         return JavaSourceCodeWriter.getUnqualifiedName(this.returnType)
@@ -244,6 +253,7 @@ public final class JavaMethodDeclaration implements Declaration {
 
     public static class Parameter {
 
+        private List<JavaAnnotation> annotations = new LinkedList<>();
         private List<String> genericTypes = new LinkedList<>();
         private String type;
         private String name;
@@ -251,6 +261,19 @@ public final class JavaMethodDeclaration implements Declaration {
 
         public static Parameter builder() {
             return new Parameter();
+        }
+
+        public List<JavaAnnotation> getAnnotations() {
+            return annotations;
+        }
+
+        public Parameter annotations(List<JavaAnnotation> annotations) {
+            setAnnotations(annotations);
+            return this;
+        }
+
+        public void setAnnotations(List<JavaAnnotation> annotations) {
+            this.annotations = annotations;
         }
 
         public List<String> getGenericTypes() {

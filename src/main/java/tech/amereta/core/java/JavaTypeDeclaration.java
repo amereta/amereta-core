@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
  */
 public final class JavaTypeDeclaration implements TypeDeclaration {
 
-    private List<JavaAnnotation> annotations = new ArrayList<>();
-    private List<AbstractJavaFieldDeclaration> fieldDeclarations = new ArrayList<>();
-    private List<JavaMethodDeclaration> methodDeclarations = new ArrayList<>();
-    private List<String> tailGenericTypes = new ArrayList<>();
+    private List<JavaAnnotation> annotations = new LinkedList<>();
+    private List<AbstractJavaFieldDeclaration> fieldDeclarations = new LinkedList<>();
+    private List<JavaMethodDeclaration> methodDeclarations = new LinkedList<>();
+    private List<String> tailGenericTypes = new LinkedList<>();
     private JavaModifier modifiers;
     private JavaType type;
     private String name;

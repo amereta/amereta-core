@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
  */
 public final class JavaFieldDeclaration extends AbstractJavaFieldDeclaration {
 
-    private List<JavaAnnotation> annotations = new ArrayList<>();
-    private List<String> genericTypes = new ArrayList<>();
+    private List<JavaAnnotation> annotations = new LinkedList<>();
+    private List<String> genericTypes = new LinkedList<>();
     private JavaModifier modifiers;
     private String name;
     private String dataType;

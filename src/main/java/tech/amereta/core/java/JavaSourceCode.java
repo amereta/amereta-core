@@ -5,7 +5,7 @@ import tech.amereta.core.CompilationUnit;
 import tech.amereta.core.SourceCode;
 import tech.amereta.core.soy.ISoyConfiguration;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
  */
 public final class JavaSourceCode implements SourceCode {
 
-    private List<JavaCompilationUnit> compilationUnits = new ArrayList<>();
-    private List<JavaCompilationUnit> testCompilationUnits = new ArrayList<>();
-    private List<ISoyConfiguration> staticCompilationUnits = new ArrayList<>();
+    private List<JavaCompilationUnit> compilationUnits = new LinkedList<>();
+    private List<JavaCompilationUnit> testCompilationUnits = new LinkedList<>();
+    private List<ISoyConfiguration> staticCompilationUnits = new LinkedList<>();
 
     public static JavaSourceCode builder() {
         return new JavaSourceCode();

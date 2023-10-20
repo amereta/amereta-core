@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public final class JavaCompilationUnit implements CompilationUnit {
 
-    private List<JavaTypeDeclaration> typeDeclarations = new ArrayList<>();
+    private List<JavaTypeDeclaration> typeDeclarations = new LinkedList<>();
     private String packageName;
     private String name;
 
