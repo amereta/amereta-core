@@ -31,7 +31,7 @@ public final class JavaDeclarationStatement implements Statement {
             str.append("<").append(this.genericTypes.stream()
                             .map(JavaSourceCodeWriter::getUnqualifiedName)
                             .collect(Collectors.joining(", ")))
-                    .append("> ");
+                    .append(">");
         }
         str.append(" ").append(this.name);
         if (this.initialized) str.append(" = ").append(this.expression.render());
